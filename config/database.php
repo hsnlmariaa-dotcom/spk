@@ -65,15 +65,44 @@ function getDB() {
             $isRemoteHost = (DB_HOST !== 'localhost' && DB_HOST !== '127.0.0.1');
             $useSsl = getenv('DB_SSL') === 'true' || (getenv('DB_SSL') !== 'false' && $isRemoteHost);
 
-            if ($useSsl && defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
-                $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+            if ($useSsl) {
+                // TiDB Cloud uses Let's Encrypt ISRG Root X1 certificate
+                $customCa = getenv('MYSQL_ATTR_SSL_CA');
+                $localCa = __DIR__ . '/isrgrootx1.pem';
+                
+                // Common Linux CA bundle paths (e.g. AWS Lambda / Vercel runtime)
+                $systemCaPaths = [
+                    '/etc/pki/tls/certs/ca-bundle.crt',
+                    '/etc/ssl/certs/ca-certificates.crt',
+                    '/etc/ssl/cert.pem'
+                ];
+
+                if (!empty($customCa) && file_exists($customCa)) {
+                    $options[PDO::MYSQL_ATTR_SSL_CA] = $customCa;
+                } elseif (file_exists($localCa)) {
+                    $options[PDO::MYSQL_ATTR_SSL_CA] = $localCa;
+                } else {
+                    foreach ($systemCaPaths as $sysCa) {
+                        if (file_exists($sysCa)) {
+                            $options[PDO::MYSQL_ATTR_SSL_CA] = $sysCa;
+                            break;
+                        }
+                    }
+                    if (!isset($options[PDO::MYSQL_ATTR_SSL_CA])) {
+                        $options[PDO::MYSQL_ATTR_SSL_CA] = true;
+                    }
+                }
+
+                if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+                    $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+                }
             }
 
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
             $isVercel = !empty($_SERVER['VERCEL']) || !empty(getenv('VERCEL'));
             $advice = $isVercel
-                ? "<p><strong>Panduan Vercel:</strong> Buka <em>Vercel Dashboard &rarr; Settings &rarr; Environment Variables</em>, pastikan <code>DB_HOST</code>, <code>DB_PORT</code>, <code>DB_USER</code>, <code>DB_PASS</code>, dan <code>DB_NAME</code> telah terisi dengan database cloud (seperti TiDB Serverless, Aiven, atau Railway).</p>"
+                ? "<p><strong>Panduan Vercel:</strong> Buka <em>Vercel Dashboard &rarr; Settings &rarr; Environment Variables</em>, pastikan <code>DB_HOST</code>, <code>DB_PORT</code>, <code>DB_USER</code>, <code>DB_PASS</code>, dan <code>DB_NAME</code> telah terisi dengan benar.</p>"
                 : "<p>Pastikan MySQL di Laragon/XAMPP sudah aktif dan database sudah di-import.</p>";
 
             die("<div style='font-family: system-ui, -apple-system, sans-serif; padding: 24px; background: #fee2e2; color: #991b1b; border: 1px solid #f87171; border-radius: 10px; margin: 30px auto; max-width: 650px; line-height: 1.6;'>
