@@ -1,0 +1,572 @@
+{
+  "penyakit": [
+    {
+      "kode": "P01",
+      "nama": "Demam Berdarah Dengue (DBD)",
+      "deskripsi": "Penyakit infeksi yang disebabkan oleh virus Dengue dan ditularkan melalui gigitan nyamuk Aedes aegypti atau Aedes albopictus."
+    }
+  ],
+  "gejala": [
+    {
+      "kode": "G01",
+      "nama": "Demam tinggi mendadak, 2-7 hari",
+      "cf_pakar": 0.8,
+      "ket": "Kriteria WHO — gejala kardinal DBD",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "G02",
+      "nama": "Nyeri kepala hebat",
+      "cf_pakar": 0.6,
+      "ket": "Gejala penyerta umum sindrom dengue",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "G03",
+      "nama": "Nyeri retro-orbital (di belakang mata)",
+      "cf_pakar": 0.6,
+      "ket": "Gejala penyerta umum sindrom dengue",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "G04",
+      "nama": "Nyeri otot dan sendi (myalgia/artralgia)",
+      "cf_pakar": 0.7,
+      "ket": "Sering disebut 'breakbone fever'",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "G05",
+      "nama": "Ruam kulit / petekie",
+      "cf_pakar": 0.9,
+      "ket": "Tanda perdarahan kulit — spesifisitas tinggi",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "G06",
+      "nama": "Mual / muntah",
+      "cf_pakar": 0.5,
+      "ket": "Gejala penyerta, spesifisitas rendah",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "G07",
+      "nama": "Perdarahan gusi / hidung (epistaksis)",
+      "cf_pakar": 0.85,
+      "ket": "Tanda perdarahan — kecurigaan derajat II+",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "G08",
+      "nama": "Nyeri ulu hati / abdomen",
+      "cf_pakar": 0.7,
+      "ket": "Warning sign WHO",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "G09",
+      "nama": "Uji tourniquet (Rumple Leede) positif",
+      "cf_pakar": 0.85,
+      "ket": "Pemeriksaan fisik penunjang WHO",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "G10",
+      "nama": "Hepatomegali (pembesaran hati)",
+      "cf_pakar": 0.6,
+      "ket": "Tanda klinis penyerta",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "G11",
+      "nama": "Tanda syok (akral dingin, nadi lemah, hipotensi)",
+      "cf_pakar": 0.95,
+      "ket": "Warning sign berat — DSS (derajat III/IV)",
+      "kategori": "klinis"
+    },
+    {
+      "kode": "L01",
+      "nama": "Trombosit (< 100.000 /uL)",
+      "kriteria": "< 100.000 /uL",
+      "cf_pakar": 0.9,
+      "ket": "Trombositopenia — kriteria WHO",
+      "kategori": "lab"
+    },
+    {
+      "kode": "L02",
+      "nama": "Hematokrit (Naik >= 20% dari baseline)",
+      "kriteria": "Naik >= 20% dari baseline",
+      "cf_pakar": 0.9,
+      "ket": "Indikasi kebocoran plasma",
+      "kategori": "lab"
+    },
+    {
+      "kode": "L03",
+      "nama": "Leukosit (Leukopenia (< 4.000 /uL))",
+      "kriteria": "Leukopenia (< 4.000 /uL)",
+      "cf_pakar": 0.6,
+      "ket": "Umum pada fase demam dengue",
+      "kategori": "lab"
+    },
+    {
+      "kode": "L04",
+      "nama": "Antigen NS1 (Positif)",
+      "kriteria": "Positif",
+      "cf_pakar": 0.95,
+      "ket": "Deteksi dini, akurat hari 1-5 demam",
+      "kategori": "lab"
+    },
+    {
+      "kode": "L05",
+      "nama": "IgM / IgG Dengue (serologi) (Positif)",
+      "kriteria": "Positif",
+      "cf_pakar": 0.9,
+      "ket": "Konfirmasi setelah hari ke-5",
+      "kategori": "lab"
+    }
+  ],
+  "skala_cf_user": [
+    {
+      "pilihan": "Tidak",
+      "nilai": 0,
+      "ket": "Gejala tidak dialami / parameter tidak diperiksa"
+    },
+    {
+      "pilihan": "Tidak tahu",
+      "nilai": 0.2,
+      "ket": "Pasien ragu / tidak yakin"
+    },
+    {
+      "pilihan": "Sedikit yakin",
+      "nilai": 0.4,
+      "ket": "Keyakinan rendah"
+    },
+    {
+      "pilihan": "Cukup yakin",
+      "nilai": 0.6,
+      "ket": "Keyakinan sedang"
+    },
+    {
+      "pilihan": "Yakin",
+      "nilai": 0.8,
+      "ket": "Keyakinan tinggi"
+    },
+    {
+      "pilihan": "Sangat yakin",
+      "nilai": 1,
+      "ket": "Keyakinan penuh / hasil lab pasti"
+    }
+  ],
+  "rules": [
+    {
+      "rule": "R1",
+      "kondisi": "G01 AND G05 AND G09 AND L01",
+      "diagnosis": "DBD (kriteria WHO terpenuhi)",
+      "catatan": "Demam + petekie + tourniquet(+) + trombositopenia"
+    },
+    {
+      "rule": "R2",
+      "kondisi": "G01 AND G02 AND G03 AND G04",
+      "diagnosis": "Suspek Dengue (belum tentu DBD)",
+      "catatan": "Gejala klasik tanpa tanda perdarahan/kebocoran plasma"
+    },
+    {
+      "rule": "R3",
+      "kondisi": "G07 AND L01 AND L02",
+      "diagnosis": "DBD Derajat II",
+      "catatan": "Ada perdarahan spontan + trombositopenia + hemokonsentrasi"
+    },
+    {
+      "rule": "R4",
+      "kondisi": "G11",
+      "diagnosis": "DBD Derajat III/IV (Dengue Shock Syndrome)",
+      "catatan": "Kegawatdaruratan - rujuk segera ke fasilitas lebih tinggi"
+    },
+    {
+      "rule": "R5",
+      "kondisi": "L04 OR L05",
+      "diagnosis": "Konfirmasi laboratoris infeksi dengue",
+      "catatan": "NS1 untuk deteksi dini; IgM/IgG untuk konfirmasi lanjutan"
+    }
+  ],
+  "interpretasi": [
+    {
+      "rentang": "0.80 - 1.00",
+      "interpretasi": "Sangat mungkin DBD",
+      "rekomendasi": "Rujuk untuk konfirmasi laboratorium lanjutan (NS1/IgM-IgG), pertimbangkan rawat inap"
+    },
+    {
+      "rentang": "0.60 - 0.79",
+      "interpretasi": "Kemungkinan DBD",
+      "rekomendasi": "Observasi ketat, ulangi pemeriksaan laboratorium berkala"
+    },
+    {
+      "rentang": "0.40 - 0.59",
+      "interpretasi": "Dicurigai DBD",
+      "rekomendasi": "Perlu pemeriksaan tambahan, edukasi tanda bahaya (warning signs)"
+    },
+    {
+      "rentang": "0.01 - 0.39",
+      "interpretasi": "Kemungkinan kecil DBD",
+      "rekomendasi": "Pantau perkembangan gejala, evaluasi ulang bila memburuk"
+    },
+    {
+      "rentang": "0.00",
+      "interpretasi": "Tidak ada indikasi (belum ada data)",
+      "rekomendasi": "Lengkapi data gejala/parameter pada Kalkulator_CF"
+    }
+  ],
+  "pasien_simulasi": [
+    {
+      "no": 1,
+      "nama": "Ani",
+      "input_user": {
+        "G01": "Yakin",
+        "G02": "Cukup yakin",
+        "G03": "Cukup yakin",
+        "G04": "Yakin",
+        "G05": "Sangat yakin",
+        "G06": "Sedikit yakin",
+        "G07": "Tidak",
+        "G08": "Tidak",
+        "G09": "Yakin",
+        "G10": "Tidak",
+        "G11": "Tidak",
+        "L01": "Sangat yakin",
+        "L02": "Yakin",
+        "L03": "Cukup yakin",
+        "L04": "Tidak",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.9999702358766388,
+      "interpretasi": "Sangat mungkin DBD",
+      "gold_standard": "DBD Positif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Sesuai"
+    },
+    {
+      "no": 2,
+      "nama": "Budi",
+      "input_user": {
+        "G01": "Cukup yakin",
+        "G02": "Sedikit yakin",
+        "G03": "Tidak",
+        "G04": "Sedikit yakin",
+        "G05": "Tidak",
+        "G06": "Sedikit yakin",
+        "G07": "Tidak",
+        "G08": "Tidak",
+        "G09": "Tidak",
+        "G10": "Tidak",
+        "G11": "Tidak",
+        "L01": "Tidak",
+        "L02": "Tidak",
+        "L03": "Tidak",
+        "L04": "Tidak",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.7723648,
+      "interpretasi": "Kemungkinan DBD",
+      "gold_standard": "DBD Negatif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Tidak Sesuai"
+    },
+    {
+      "no": 3,
+      "nama": "Citra",
+      "input_user": {
+        "G01": "Sangat yakin",
+        "G02": "Yakin",
+        "G03": "Tidak tahu",
+        "G04": "Yakin",
+        "G05": "Yakin",
+        "G06": "Yakin",
+        "G07": "Sangat yakin",
+        "G08": "Yakin",
+        "G09": "Yakin",
+        "G10": "Cukup yakin",
+        "G11": "Sangat yakin",
+        "L01": "Sangat yakin",
+        "L02": "Sangat yakin",
+        "L03": "Yakin",
+        "L04": "Tidak",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.9999999762247438,
+      "interpretasi": "Sangat mungkin DBD",
+      "gold_standard": "DBD Positif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Sesuai"
+    },
+    {
+      "no": 4,
+      "nama": "Dedi",
+      "input_user": {
+        "G01": "Sedikit yakin",
+        "G02": "Cukup yakin",
+        "G03": "Tidak",
+        "G04": "Tidak",
+        "G05": "Tidak",
+        "G06": "Cukup yakin",
+        "G07": "Tidak",
+        "G08": "Tidak",
+        "G09": "Tidak",
+        "G10": "Tidak",
+        "G11": "Tidak",
+        "L01": "Tidak",
+        "L02": "Tidak",
+        "L03": "Tidak",
+        "L04": "Tidak",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.69536,
+      "interpretasi": "Kemungkinan DBD",
+      "gold_standard": "DBD Negatif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Tidak Sesuai"
+    },
+    {
+      "no": 5,
+      "nama": "Eka",
+      "input_user": {
+        "G01": "Yakin",
+        "G02": "Cukup yakin",
+        "G03": "Cukup yakin",
+        "G04": "Cukup yakin",
+        "G05": "Sedikit yakin",
+        "G06": "Sedikit yakin",
+        "G07": "Tidak",
+        "G08": "Sedikit yakin",
+        "G09": "Cukup yakin",
+        "G10": "Tidak",
+        "G11": "Tidak",
+        "L01": "Cukup yakin",
+        "L02": "Sedikit yakin",
+        "L03": "Sedikit yakin",
+        "L04": "Sangat yakin",
+        "L05": "Tidak tahu"
+      },
+      "cf_akhir": 0.9998582822546286,
+      "interpretasi": "Sangat mungkin DBD",
+      "gold_standard": "DBD Positif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Sesuai"
+    },
+    {
+      "no": 6,
+      "nama": "Fajar",
+      "input_user": {
+        "G01": "Tidak",
+        "G02": "Yakin",
+        "G03": "Sedikit yakin",
+        "G04": "Tidak",
+        "G05": "Tidak",
+        "G06": "Cukup yakin",
+        "G07": "Tidak",
+        "G08": "Tidak",
+        "G09": "Tidak",
+        "G10": "Tidak",
+        "G11": "Tidak",
+        "L01": "Tidak",
+        "L02": "Tidak",
+        "L03": "Tidak",
+        "L04": "Tidak",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.72336,
+      "interpretasi": "Kemungkinan DBD",
+      "gold_standard": "DBD Negatif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Tidak Sesuai"
+    },
+    {
+      "no": 7,
+      "nama": "Gita",
+      "input_user": {
+        "G01": "Yakin",
+        "G02": "Sedikit yakin",
+        "G03": "Tidak tahu",
+        "G04": "Cukup yakin",
+        "G05": "Tidak",
+        "G06": "Sedikit yakin",
+        "G07": "Tidak",
+        "G08": "Sedikit yakin",
+        "G09": "Tidak tahu",
+        "G10": "Tidak",
+        "G11": "Tidak",
+        "L01": "Yakin",
+        "L02": "Cukup yakin",
+        "L03": "Cukup yakin",
+        "L04": "Tidak",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.994496700208749,
+      "interpretasi": "Sangat mungkin DBD",
+      "gold_standard": "DBD Positif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Sesuai"
+    },
+    {
+      "no": 8,
+      "nama": "Hadi",
+      "input_user": {
+        "G01": "Sangat yakin",
+        "G02": "Cukup yakin",
+        "G03": "Tidak",
+        "G04": "Sedikit yakin",
+        "G05": "Tidak",
+        "G06": "Yakin",
+        "G07": "Tidak",
+        "G08": "Cukup yakin",
+        "G09": "Tidak",
+        "G10": "Tidak",
+        "G11": "Tidak",
+        "L01": "Tidak",
+        "L02": "Tidak",
+        "L03": "Tidak",
+        "L04": "Tidak",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.96792832,
+      "interpretasi": "Sangat mungkin DBD",
+      "gold_standard": "DBD Negatif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Tidak Sesuai"
+    },
+    {
+      "no": 9,
+      "nama": "Indah",
+      "input_user": {
+        "G01": "Sangat yakin",
+        "G02": "Yakin",
+        "G03": "Yakin",
+        "G04": "Yakin",
+        "G05": "Sangat yakin",
+        "G06": "Cukup yakin",
+        "G07": "Cukup yakin",
+        "G08": "Cukup yakin",
+        "G09": "Yakin",
+        "G10": "Sedikit yakin",
+        "G11": "Tidak",
+        "L01": "Sangat yakin",
+        "L02": "Yakin",
+        "L03": "Cukup yakin",
+        "L04": "Sangat yakin",
+        "L05": "Yakin"
+      },
+      "cf_akhir": 0.9999999711170808,
+      "interpretasi": "Sangat mungkin DBD",
+      "gold_standard": "DBD Positif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Sesuai"
+    },
+    {
+      "no": 10,
+      "nama": "Joko",
+      "input_user": {
+        "G01": "Tidak",
+        "G02": "Tidak",
+        "G03": "Tidak",
+        "G04": "Sedikit yakin",
+        "G05": "Tidak",
+        "G06": "Tidak",
+        "G07": "Tidak",
+        "G08": "Tidak",
+        "G09": "Tidak",
+        "G10": "Tidak",
+        "G11": "Tidak",
+        "L01": "Tidak",
+        "L02": "Tidak",
+        "L03": "Tidak",
+        "L04": "Tidak",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.27999999999999997,
+      "interpretasi": "Kemungkinan kecil DBD",
+      "gold_standard": "DBD Negatif",
+      "prediksi": "DBD Negatif",
+      "kesesuaian": "Sesuai"
+    },
+    {
+      "no": 11,
+      "nama": "Husnul",
+      "input_user": {
+        "G01": "Tidak",
+        "G02": "Tidak",
+        "G03": "Yakin",
+        "G04": "Yakin",
+        "G05": "Sangat yakin",
+        "G06": "Tidak",
+        "G07": "Cukup yakin",
+        "G08": "Tidak",
+        "G09": "Tidak",
+        "G10": "Cukup yakin",
+        "G11": "Tidak",
+        "L01": "Sangat yakin",
+        "L02": "Yakin",
+        "L03": "Cukup yakin",
+        "L04": "Sangat yakin",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.999993571049472,
+      "interpretasi": "Sangat mungkin DBD",
+      "gold_standard": "DBD Negatif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Tidak Sesuai"
+    },
+    {
+      "no": 12,
+      "nama": "nabila",
+      "input_user": {
+        "G01": "tidak",
+        "G02": "yakin",
+        "G03": "yakin",
+        "G04": "Tidak",
+        "G05": "Tidak",
+        "G06": "sangat yakin",
+        "G07": "Tidak",
+        "G08": "Tidak",
+        "G09": "Tidak",
+        "G10": "cukup yakin",
+        "G11": "Tidak",
+        "L01": "sangat yakin",
+        "L02": "Tidak",
+        "L03": "Tidak",
+        "L04": "Tidak",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.9913472,
+      "interpretasi": "Sangat mungkin DBD",
+      "gold_standard": "DBD Positif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Sesuai"
+    },
+    {
+      "no": 13,
+      "nama": "manda",
+      "input_user": {
+        "G01": "Tidak",
+        "G02": "Tidak",
+        "G03": "Tidak",
+        "G04": "Tidak",
+        "G05": "Tidak",
+        "G06": "Tidak",
+        "G07": "Tidak",
+        "G08": "Tidak",
+        "G09": "Tidak",
+        "G10": "Tidak",
+        "G11": "Tidak",
+        "L01": "Sangat yakin",
+        "L02": "Yakin",
+        "L03": "Cukup yakin",
+        "L04": "Sangat yakin",
+        "L05": "Tidak"
+      },
+      "cf_akhir": 0.999104,
+      "interpretasi": "Sangat mungkin DBD",
+      "gold_standard": "DBD Positif",
+      "prediksi": "DBD Positif",
+      "kesesuaian": "Sesuai"
+    }
+  ]
+}
