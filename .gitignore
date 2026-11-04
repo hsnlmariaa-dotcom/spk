@@ -1,0 +1,22 @@
+# Environment Variables (PENTING: Jangan push password ke GitHub)
+.env
+.env.local
+.env.*.local
+
+# Dependency directories
+node_modules/
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Large local files
+*.xlsx
+start-ngrok.bat
+
