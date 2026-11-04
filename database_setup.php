@@ -1,22 +1,25 @@
 <?php
 /**
  * Database Migration & Seeder for CDSS DBD Certainty Factor
+ * Clinical Decision Support System (CDSS) - Demam Berdarah Dengue
  */
 
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$dbname = 'cdss_dbd';
+require_once __DIR__ . '/config/database.php';
+
+$isCli = (php_sapi_name() === 'cli');
+$logs = [];
+
+function logMsg(string $msg) {
+    global $isCli, $logs;
+    $logs[] = $msg;
+    if ($isCli) {
+        echo $msg . "\n";
+    }
+}
 
 try {
-    $pdo = new PDO("mysql:host=$host;charset=utf8mb4", $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-
-    // Create DB if not exists
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbname` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-    $pdo->exec("USE `$dbname`");
+    $pdo = getDB();
+    logMsg("✓ Berhasil terhubung ke database MySQL: " . DB_NAME . " (" . DB_HOST . ":" . DB_PORT . ")");
 
     // 1. Table: penyakit
     $pdo->exec("
@@ -43,8 +46,6 @@ try {
             `keterangan` TEXT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
-
-    // Check if columns exist in gejala, if not add them
     $cols = $pdo->query("SHOW COLUMNS FROM `gejala`")->fetchAll(PDO::FETCH_COLUMN);
     if (!in_array('kategori', $cols)) {
         $pdo->exec("ALTER TABLE `gejala` ADD COLUMN `kategori` ENUM('klinis', 'lab') DEFAULT 'klinis' AFTER `nama_gejala`");
@@ -144,10 +145,38 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 
-    echo "Tables ensured successfully!\n";
+    // 9. Table: users
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS `users` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `username` VARCHAR(50) NOT NULL UNIQUE,
+            `password` VARCHAR(255) NOT NULL,
+            `nama_lengkap` VARCHAR(100) NOT NULL,
+            `role` ENUM('admin', 'dokter') NOT NULL DEFAULT 'dokter',
+            `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+            `last_login` DATETIME NULL,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
+
+    logMsg("✓ Struktur tabel (penyakit, gejala, aturan, skala_cf, pasien, pasien_gejala, hasil_diagnosis, rule_base, users) telah dipastikan.");
+
+    // Seed default users
+    $stmtU = $pdo->prepare("
+        INSERT INTO `users` (`id`, `username`, `password`, `nama_lengkap`, `role`, `is_active`)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE `nama_lengkap` = VALUES(`nama_lengkap`), `role` = VALUES(`role`)
+    ");
+    $stmtU->execute([1, 'admin', hash('sha256', 'admin123'), 'Administrator Sistem', 'admin', 1]);
+    $stmtU->execute([2, 'dokter1', hash('sha256', 'dokter123'), 'dr. Maria, Sp.A', 'dokter', 1]);
+    logMsg("✓ Akun default berhasil di-seed (admin: admin123, dokter1: dokter123).");
 
     // Seed data from cdss_data.json
-    $json = json_decode(file_get_contents(__DIR__ . '/cdss_data.json'), true);
+    $dataFile = __DIR__ . '/cdss_data.json';
+    if (!file_exists($dataFile)) {
+        throw new Exception("File $dataFile tidak ditemukan.");
+    }
+    $json = json_decode(file_get_contents($dataFile), true);
 
     // Seed Penyakit
     $pdo->exec("DELETE FROM `penyakit`");
@@ -249,7 +278,6 @@ try {
         // Insert patient symptoms and calculate running CF
         $steps = [];
         $runningCF = 0.0;
-        $evalRules = [];
 
         foreach ($p['input_user'] as $code => $rating) {
             $ratingNormalized = strtolower(trim((string)$rating));
@@ -271,11 +299,11 @@ try {
                     $runningCF = $runningCF + ($itemCF * (1.0 - $runningCF));
                 }
                 $steps[] = [
-                    'kode' => $code,
-                    'rating' => $rating,
-                    'user_cf' => $userCF,
-                    'expert_cf' => $expertCF,
-                    'item_cf' => round($itemCF, 4),
+                    'kode'       => $code,
+                    'rating'     => $rating,
+                    'user_cf'    => $userCF,
+                    'expert_cf'  => $expertCF,
+                    'item_cf'    => round($itemCF, 4),
                     'cf_sebelum' => round($oldCF, 6),
                     'cf_sesudah' => round($runningCF, 6)
                 ];
@@ -341,9 +369,91 @@ try {
         ]);
     }
 
-    echo "Seeding completed successfully! 13 patients seeded with complete CF calculation and validation.\n";
+    logMsg("✓ Seeding selesai: 16 Gejala/Lab, 16 Aturan CF, 6 Skala CF, 5 Rule Base WHO, 13 Pasien simulasi.");
+    $success = true;
 
-} catch (PDOException $e) {
-    echo "ERROR: " . $e->getMessage() . "\n";
-    exit(1);
+} catch (Exception $e) {
+    logMsg("✗ ERROR: " . $e->getMessage());
+    $success = false;
 }
+
+if (!$isCli): ?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Setup Wizard • CDSS DBD</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+        .header {
+            background: <?= $success ? '#0284c7' : '#dc2626' ?>;
+            color: #ffffff;
+            padding: 24px;
+        }
+        .header h1 { margin: 0 0 6px 0; font-size: 1.4rem; }
+        .header p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+        .body { padding: 24px; }
+        .log-box {
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            max-height: 320px;
+            overflow-y: auto;
+            margin-bottom: 24px;
+        }
+        .btn {
+            display: inline-block;
+            background: #0284c7;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #0369a1; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><?= $success ? '✓ Inisialisasi Database Berhasil!' : '✗ Gagal Inisialisasi Database' ?></h1>
+        <p>CDSS Demam Berdarah Dengue (Certainty Factor Method)</p>
+    </div>
+    <div class="body">
+        <div class="log-box">
+            <?php foreach ($logs as $l): ?>
+                <div><?= htmlspecialchars($l) ?></div>
+            <?php endforeach; ?>
+        </div>
+        <?php if ($success): ?>
+            <a href="<?= BASE_URL ?>/login.php" class="btn">Menuju Halaman Login &rarr;</a>
+        <?php else: ?>
+            <p style="color: #dc2626; font-size: 0.9rem;">Periksa koneksi database Anda dan coba refresh halaman ini.</p>
+        <?php endif; ?>
+    </div>
+</div>
+</body>
+</html>
+<?php endif; ?>

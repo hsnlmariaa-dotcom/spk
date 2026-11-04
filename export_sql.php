@@ -3,12 +3,10 @@
  * Export current cdss_dbd MySQL schema and data into cdss_dbd.sql
  */
 
-$pdo = new PDO("mysql:host=localhost;dbname=cdss_dbd;charset=utf8mb4", "root", "", [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-]);
+require_once __DIR__ . '/config/database.php';
+$pdo = getDB();
 
-$tables = ['penyakit', 'gejala', 'aturan', 'skala_cf', 'rule_base', 'pasien', 'pasien_gejala', 'hasil_diagnosis'];
+$tables = ['penyakit', 'gejala', 'aturan', 'skala_cf', 'rule_base', 'pasien', 'pasien_gejala', 'hasil_diagnosis', 'users'];
 
 $out = "-- phpMyAdmin SQL Dump\n";
 $out .= "-- CDSS DBD Certainty Factor Database\n";

@@ -5,11 +5,12 @@
  */
 
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/auth.php';
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
 // Redirect jika sudah login
-if (isset($_SESSION['user_id'])) {
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     header('Location: ' . BASE_URL . '/index.php');
     exit();
 }
@@ -31,11 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         if ($user && $user['password'] === hash('sha256', $password)) {
-            // Set session
-            $_SESSION['user_id']     = $user['id'];
-            $_SESSION['username']    = $user['username'];
-            $_SESSION['nama_lengkap']= $user['nama_lengkap'];
-            $_SESSION['role']        = $user['role'];
+            // Set session & persistent signed cookie (essential for Vercel Serverless)
+            setAuthSession($user);
 
             // Update last_login
             $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?")->execute([$user['id']]);
